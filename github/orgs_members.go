@@ -368,3 +368,26 @@ func (s *OrganizationsService) ListOrgInvitationTeams(ctx context.Context, org, 
 	}
 	return orgInvitationTeams, resp, nil
 }
+
+type AddMembershipeOrgOptions struct {
+	Role *string `json:"role"`
+}
+
+func (s *OrganizationsService) AddOrgMemberInvitation(ctx context.Context, org string, username string, opt *AddMembershipeOrgOptions) (*Response, error) {
+	u := fmt.Sprintf("orgs/%v/memberships/%v", org, username)
+
+	req, err := s.client.NewRequest("PUT", u, opt)
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO: remove custom Accept header when this API fully launches.
+	req.Header.Set("Accept", mediaTypeOrganizationInvitationPreview)
+
+	var invitation *Invitation
+	resp, err := s.client.Do(ctx, req, &invitation)
+	if err != nil {
+		return resp, err
+	}
+	return resp, nil
+}
